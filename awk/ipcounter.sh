@@ -1,5 +1,4 @@
 #!/bin/bash
-#
 
 # exit when anything sneaks up and goes wrong
 set -euo pipefail

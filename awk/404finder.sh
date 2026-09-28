@@ -1,11 +1,11 @@
 #!/bin/bash
-#
+
 # Find all 404 requests in apache_logs.txt with awk -> error.log
 
 # exit when anything mucks up
 set -euo pipefail
 
-#
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # determine that were looking into apache logs and all its 10000 lines of goop
 LOG_FILE="$SCRIPT_DIR/apache_logs.txt"
