@@ -14,7 +14,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MYSQL_CONFIG="$SCRIPT_DIR/.mysql.cnf"
 
 # Database configuration
-DB_HOST="localhost"
+DB_HOST="127.0.0.1"
 DB_PORT="3306"
 DB_USER="root"
 DB_PASS="rootpassword"
