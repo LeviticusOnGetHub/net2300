@@ -6,7 +6,7 @@
 # This script reads all log entries with status='pending' from the logs table,
 # executes the message field as a command, and updates status accordingly
 #
-# Usage: ./engine.sh
+# Usage: ./engine-min.sh
 ################################################################################
 
 # Get the directory where this script is located
