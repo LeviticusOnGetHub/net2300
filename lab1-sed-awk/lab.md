@@ -8,7 +8,7 @@ This hands-on lab is structured into four difficulty tiers designed to build ind
 
 [https://github.com/davidlislc/net2300/tree/develop/lab1-sed-awk](https://github.com/davidlislc/net2300/tree/develop/lab1-sed-awk)
 
-access.log, ssd-config.mock
+access.log, ssd-config.mock, apache_logs.txt
 
 ### Advanced Context & Extended Pattern Matching (Grep focus)
 
@@ -55,8 +55,8 @@ Hint: Filter records where number of fields NF > 0 and record !/^#/ .
 
 #### Exercise 3.3:  Parsing Double-Quoted Fields
 
-Standard space-delimited awk breaks when fields contain spaces (like User-Agent strings). Parse access.log using double quotes as the field separator ( -F'"' ) to extract Field 6 (User-Agent) and count occurrences of each client tool.  
-Hint: Set the quote separator with -F'"' . The User-Agent string becomes $6 and the Referrer becomes $4 .
+Standard space-delimited awk breaks when fields contain spaces (like User-Agent strings). Parse apache_logs.txt  using double quotes as the field separator ( -F'"' ) to extract Field 6 (User-Agent) and count occurrences of each client tool.  
+Hint: Set the quote separator with -F'"' . 
 
 #### Exercise 3.4: Incident Response Pipeline Challenge
 
