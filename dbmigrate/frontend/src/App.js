@@ -381,7 +381,6 @@ function App() {
               {/* Log Form Section */}
               <section className="card">
                 <div className="logs-header">
-                  <h2>Create New Command Entry</h2>
                   <div className="controls">
                     {/* Import from existing backups (export_log with success) */}
                     <div className="dropdown" style={{ marginRight: '10px' }}>
@@ -453,10 +452,10 @@ function App() {
           {activeTab === 'executions' && (
             <>
               {/* Execution Log Form Section */}
-              <section className="card">
+{/*               <section className="card">
                 <h2>Create New Execution Log</h2>
                 <ExecutionLogForm onSubmit={createExecutionLog} />
-              </section>
+              </section> */}
 
               {/* Execution Log List Section */}
               <section className="card">
