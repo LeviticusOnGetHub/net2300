@@ -1,7 +1,7 @@
 #!/bin/bash
 # engine-min.sh - minimal migrate engine.
 # Every second: read 'pending' rows from the logs table, execute each command,
-# set the row to 'done' or 'error', and write the result to dbmigrate.log.
+# set the row to 'done' or 'error', and log the result to stdout (redirect to dbmigrate.log).
 #
 # Usage:  nohup ./engine-min.sh >> dbmigrate.log 2>&1 &
 #         ./engine-min.sh --once     process pending rows one time and exit
@@ -15,7 +15,6 @@ DB_PORT="${DB_PORT:-3306}"
 DB_USER="${DB_USER:-logapp}"
 DB_PASS="${DB_PASS:-logapp123}"
 DB_NAME="${DB_NAME:-logdb}"
-LOG_FILE="${LOG_FILE:-$SCRIPT_DIR/dbmigrate.log}"
 MYSQL_CONFIG="$(mktemp /tmp/engine-min.XXXXXX)"
 
 # The mysql client is called mariadb on newer MariaDB installs
@@ -29,7 +28,7 @@ else
 fi
 
 log() {
-    echo "$(date '+%Y-%m-%d %H:%M:%S') $*" | tee -a "$LOG_FILE"
+    echo "$(date '+%Y-%m-%d %H:%M:%S') $*"
 }
 
 cleanup() {
