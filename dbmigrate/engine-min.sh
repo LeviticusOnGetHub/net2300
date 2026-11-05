@@ -47,6 +47,8 @@ port=$DB_PORT
 user=$DB_USER
 password=$DB_PASS
 database=$DB_NAME
+# Newer clients require SSL by default; the local Docker server has none
+skip-ssl
 EOF
     # Secure the configuration file
     chmod 600 "$MYSQL_CONFIG"
