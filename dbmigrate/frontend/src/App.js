@@ -131,9 +131,9 @@ function App() {
   // Export database - insert mysqldump command into logs
   const exportDatabase = async (database) => {
     const commands = {
-      logdb: 'mysqldump --skip-add-drop-table --complete-insert -h 127.0.0.1 -u root -prootpassword logdb   > backup.sql',
-      logdbqa: 'mysqldump -h 127.0.0.1 -u root -prootpassword logdbqa > backup_qa.sql',
-      logdbprod: 'mysqldump -h 127.0.0.1 -u root -prootpassword logdbprod > backup_prod.sql'
+      logdb: 'mysqldump --skip-add-drop-table --complete-insert -h 127.0.0.1 -u root -prootpassword logdb   > backup_$(date +%y%m%d%H%M%S).sql',
+      logdbqa: 'mysqldump -h 127.0.0.1 -u root -prootpassword logdbqa > backup_qa_$(date +%y%m%d%H%M%S).sql',
+      logdbprod: 'mysqldump -h 127.0.0.1 -u root -prootpassword logdbprod > backup_prod_$(date +%y%m%d%H%M%S).sql'
     };
 
     const command = commands[database];
