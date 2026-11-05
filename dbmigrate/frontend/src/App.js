@@ -422,7 +422,7 @@ function App() {
                     </div>
                   </div>
                 </div>
-                <LogForm onSubmit={createLog} />
+                {/* <LogForm onSubmit={createLog} /> */}
               </section>
 
               {/* Log List Section */}
