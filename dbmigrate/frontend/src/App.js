@@ -348,7 +348,7 @@ function App() {
       <header className="App-header">
         <h1>📝 MariaDB migrate Manager</h1>
         <p>Net23000 class project</p>
-        <h2>Update read-pending.sh with your database connection details</h2>
+        <h2>Update engine.sh with your database connection details</h2>
       </header>
 
       <main className="App-main">
