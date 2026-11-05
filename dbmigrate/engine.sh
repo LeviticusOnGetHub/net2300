@@ -38,6 +38,44 @@ EOF
 }
 
 ################################################################################
+# Function to escape strings for safe SQL insertion
+################################################################################
+sql_escape() {
+    local s="$1"
+    # Escape backslashes first, then single quotes
+    s="${s//\\/\\\\}"
+    s="${s//\'/\'\'}"
+    printf "%s" "$s"
+}
+################################################################################
+# Insert an execution record
+################################################################################
+log_execution() {
+    local log_id="$1"
+    local cmd="$2"
+    local status="$3"
+    local exit_code="$4"
+    local out="$5"
+    echo "Logging execution for log_id: $log_id, status: $status"
+    echo "Command: $cmd"
+    # Limit size to avoid overly large rows (optional)
+    local cmd_limited
+    local out_limited
+    cmd_limited=$(printf '%.4000s' "$cmd")
+    out_limited=$(printf '%.20000s' "$out")
+
+    # Escape for SQL
+    local cmd_esc
+    local out_esc
+    cmd_esc=$(sql_escape "$cmd_limited")
+    out_esc=$(sql_escape "$out_limited")
+    # Insert the execution record into the database
+}
+
+
+
+
+################################################################################
 # Function to update log status
 ################################################################################
 update_log_status() {
@@ -71,11 +109,13 @@ process_pending_logs() {
             # Command succeeded - update status to 'done'
             update_log_status "$id" "done"
             echo "✓ Command completed successfully (ID: $id)"
+            log_execution "$id" "$message" "done" "$exit_code" "$output"
             [ -n "$output" ] && echo "Output: $output"
         else
             # Command failed - update status to 'error'
             update_log_status "$id" "error"
             echo "✗ Command failed (ID: $id)"
+            log_execution "$id" "$message" "done" "$exit_code" "$output"
             [ -n "$output" ] && echo "Error: $output"
         fi
         
@@ -96,7 +136,8 @@ fi
 
 # Create MySQL configuration file
 create_mysql_config
-
+# Ensure execution_log table exists
+ensure_execution_log_table
 echo "Starting continuous pending log processor..."
 echo "Press Ctrl+C to stop"
 echo "========================================"
