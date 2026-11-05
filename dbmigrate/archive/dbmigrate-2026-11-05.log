@@ -1,0 +1,74 @@
+2026-11-05 01:44:31 Engine started (db=logdb host=127.0.0.1:3306)
+
+Cleaning up...
+
+Cleaning up...
+2026-11-05 01:48:40 Processing ID: 5
+2026-11-05 01:48:40 Command: echo hello
+2026-11-05 01:48:40 SUCCESS (exit 0) ID 5
+2026-11-05 01:48:40 Output: hello
+2026-11-05 01:48:40 ---
+2026-11-05 01:48:55 Processing ID: 5
+2026-11-05 01:48:55 Command: echo hello
+2026-11-05 01:48:55 SUCCESS (exit 0) ID 5
+2026-11-05 01:48:55 Output: hello
+2026-11-05 01:48:55 ---
+2026-11-05 01:49:29 Processing ID: 6
+2026-11-05 01:49:29 Command: date
+2026-11-05 01:49:29 SUCCESS (exit 0) ID 6
+2026-11-05 01:49:29 Output: Thu Nov  5 01:49:29 UTC 2026
+2026-11-05 01:49:29 ---
+2026-11-05 01:49:45 Processing ID: 7
+2026-11-05 01:49:45 Command: ls -l
+2026-11-05 01:49:45 SUCCESS (exit 0) ID 7
+2026-11-05 01:49:45 Output: total 712
+-rwxrwxrwx 1 leviticus leviticus   4395 Aug 24 14:12 APACHE.md
+-rwxrwxrwx 1 leviticus leviticus   6441 Aug 24 14:12 DOCKER-SHARE.md
+-rwxrwxrwx 1 leviticus leviticus   5630 Aug 24 14:12 DOCKER.md
+-rwxrwxrwx 1 leviticus leviticus   4654 Aug 24 14:12 INSTALL-DOCKER.md
+-rwxrwxrwx 1 leviticus leviticus    856 Nov  5 01:19 LOG_ROTATION.sh
+-rwxrwxrwx 1 leviticus leviticus   2368 Aug 24 14:12 Makefile
+-rwxrwxrwx 1 leviticus leviticus   7873 Aug 24 14:12 NODEJS-DOCKER.md
+-rwxrwxrwx 1 leviticus leviticus  10354 Aug 24 14:12 README.md
+-rwxrwxrwx 1 leviticus leviticus   5046 Aug 24 14:12 STATUS-FIELD-UPDATE.md
+drwxrwxrwx 1 leviticus leviticus   4096 Aug 24 14:12 backend
+-rwxrwxrwx 1 leviticus leviticus   1305 Nov  5 01:33 dblogrotate.sh
+-rwxrwxrwx 1 leviticus leviticus    718 Nov  5 01:49 dbmigrate.log
+-rwxrwxrwx 1 leviticus leviticus    575 Aug 24 14:12 docker-compose.override.yml.example
+-rwxrwxrwx 1 leviticus leviticus   2347 Aug 24 14:12 docker-compose.yml
+-rwxrwxrwx 1 leviticus leviticus   2715 Nov  5 01:38 engine-min.sh
+-rwxrwxrwx 1 leviticus leviticus   6574 Aug 24 14:12 export-images.sh
+drwxrwxrwx 1 leviticus leviticus   4096 Aug 24 14:12 frontend
+-rwxrwxrwx 1 leviticus leviticus   4181 Aug 24 14:12 init-databases.sql
+-rwxrwxrwx 1 leviticus leviticus   7471 Aug 24 14:12 install-docker-rocky.sh
+-rwxrwxrwx 1 leviticus leviticus 404624 Nov  4 20:01 logdb.sql
+-rwxrwxrwx 1 leviticus leviticus 195664 Aug 24 14:12 mysqlsampledatabase.sql
+-rwxrwxrwx 1 leviticus leviticus   3912 Aug 24 14:12 open-ports.sh
+-rwxrwxrwx 1 leviticus leviticus   4309 Aug 24 14:12 verify-docker.sh
+2026-11-05 01:49:45 ---
+2026-11-05 01:51:37 Processing ID: 8
+2026-11-05 01:51:37 Command: ls -z
+2026-11-05 01:51:37 ERROR (exit 2) ID 8
+2026-11-05 01:51:37 Output: error: unexpected argument '-z' found
+
+  tip: to pass '-z' as a value, use '-- -z'
+
+Usage: ls [OPTION]... [FILE]...
+
+For more information, try '--help'.
+2026-11-05 01:51:37 ---
+2026-11-05 01:52:11 Processing ID: 9
+2026-11-05 01:52:11 Command: echo "i didnt close the comment also djhaskdjfhojsdnf
+2026-11-05 01:52:11 ERROR (exit 2) ID 9
+2026-11-05 01:52:11 Output: ./engine-min.sh: eval: line 73: unexpected EOF while looking for matching `"'
+2026-11-05 01:52:11 ---
+2026-11-05 01:52:37 Processing ID: 10
+2026-11-05 01:52:37 Command: fufucmd
+2026-11-05 01:52:37 ERROR (exit 127) ID 10
+2026-11-05 01:52:37 Output: ./engine-min.sh: line 73: fufucmd: command not found
+2026-11-05 01:52:37 ---
+2026-11-05 01:52:52 Processing ID: 11
+2026-11-05 01:52:52 Command: fakecmd
+2026-11-05 01:52:52 ERROR (exit 127) ID 11
+2026-11-05 01:52:52 Output: ./engine-min.sh: line 73: fakecmd: command not found
+2026-11-05 01:52:52 ---
