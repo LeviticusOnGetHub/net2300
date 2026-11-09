@@ -72,9 +72,29 @@ log_execution() {
     # Insert the execution record into the database
 }
 
+################################################################################
+# Insert an export log record
+################################################################################
+log_export() {
+    local db_name="$1"
+    local filename="$2"
+    local status="$3"
+    local output="$4"
+    local file_size="${5:-NULL}"
+    
+    echo "Logging export for database: $db_name, file: $filename, status: $status"
+    
+    # Escape for SQL
+    local db_name_esc
+    local filename_esc
+    local output_esc
+    db_name_esc=$(sql_escape "$db_name")
+    filename_esc=$(sql_escape "$filename")
+    output_esc=$(sql_escape "$output")
 
-
-
+    # Insert the export log record into the database
+  
+}
 ################################################################################
 # Function to update log status
 ################################################################################
