@@ -61,17 +61,43 @@ update_status() {
 }
 
 process_pending_logs() {
-    local id message status output rc
+    # Keep each row's ID, command and status, its result, and logging variables local.
+    # command_hex and output_hex hold SQL safe text, masked_command hides -p passwords.
+    local id message status output rc command_hex output_hex masked_command
 
     # Read from fd 3 so executed commands cannot consume the pending list
     while IFS=$'\t' read -r -u 3 id message status; do
+        # Send the original command to sed and save the new copy.
+        # The pattern matches an attached, unquoted -p password after whitespace
+        # or at the start the replacement preserves the -p prefix and masks it.
+        # This does not mask other password formats
+        masked_command=$(printf '%s' "$message" |
+            sed -E 's/(^|[[:space:]])-p[^[:space:]]+/\1-p********/g')
         log "Processing ID: $id"
-        log "Command: $message"
+        # Print the masked copy, the original message is still used for execution.
+        log "Command: $masked_command"
 
         update_status "$id" processing
 
         output=$(eval "$message" 2>&1 < /dev/null)
         rc=$?
+
+        # Convert the masked command to hexadecimal bytes and remove od's spacing.
+        # Encoding prevents quotes and newlines in the command from breaking SQL.
+        command_hex=$(printf '%s' "$masked_command" | od -An -v -tx1 | tr -d ' \n')
+        # Encode captured output the same way; it is not password-masked.
+        output_hex=$(printf '%s' "$output" | od -An -v -tx1 | tr -d ' \n')
+
+        # Execute an INSERT with the configured MySQL client.
+        # UNHEX restores the command and output bytes; $id and $rc identify the
+        # source entry and exit code. The table supplies the executed_at timestamp.
+        # The if condition catches an unsuccessful database insert.
+        if ! "$MYSQL_BIN" --defaults-file="$MYSQL_CONFIG" -e \
+            "INSERT INTO execution_log (log_id, command, output, exit_code)
+             VALUES ($id, UNHEX('$command_hex'), UNHEX('$output_hex'), $rc)"; then
+            # Report the failure instead of claiming the execution was recorded.
+            log "ERROR: Could not save execution log for ID $id"
+        fi
 
         if [ "$rc" -eq 0 ]; then
             update_status "$id" done
