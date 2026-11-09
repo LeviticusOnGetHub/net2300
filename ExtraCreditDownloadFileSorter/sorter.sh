@@ -3,10 +3,10 @@
 
 # Sort files in a folder into subfolders based on their filename extensions.
 # Commands to run the script:
-#   ./sorter.sh                 # Sort ~/Downloads, then keep watching.
+#   ./sorter.sh                 # Sort ~/Downloads, then watch until a scan is idle.
 #   ./sorter.sh -o              # Sort once and exit.
 #   ./sorter.sh -d /some/folder # Sort a specified folder.
-#   ./sorter.sh -h              # Display help.
+# Type start at the prompt to begin, or press Ctrl+C to stop.
 
 # Use my Downloads directory unless another directory is specified.
 TARGET_DIR="$HOME/Downloads"
@@ -22,25 +22,21 @@ usage() {
     # Print a blank line to separate the description from the options.
     echo ""
     # Show the accepted options, using $0 as the invoked script name.
-    echo "Usage: $0 [-d directory] [-o] [-h]"
+    echo "Usage: $0 [-d directory] [-o]"
     # Explain that -d selects the directory to sort.
     echo "  -d  folder to sort (default: ~/Downloads)"
     # Explain that -o disables watch mode and exits after sorting once.
     echo "  -o  sort once and exit instead of watching"
-    # Explain that -h prints this help text.
-    echo "  -h  show this help"
 }
 
 # Read command-line options, treating -d as an option that requires a value.
-while getopts "d:oh" opt; do
+while getopts "d:o" opt; do
     # Choose the action corresponding to the option just parsed.
     case "$opt" in
         # Save the directory supplied after -d.
         d) TARGET_DIR="$OPTARG" ;;
         # Enable one-time mode when -o is supplied.
         o) ONCE=true ;;
-        # Print help and exit successfully when -h is supplied.
-        h) usage; exit 0 ;;
         # Print help and exit with an error for an invalid option.
         *) usage; exit 1 ;;
     # Finish handling the parsed option.
@@ -182,6 +178,29 @@ sort_folder() {
 # End the folder-sorting function.
 }
 
+# Allow Ctrl+C to stop the script before or during sorting.
+trap 'echo; echo "Stopped."; exit 0' INT
+
+# Tell the user how to start and stop before making any changes.
+echo "Folder to sort: $TARGET_DIR"
+echo "Type start and press Enter to begin. Press Ctrl+C to stop."
+# Wait for the start command, allowing the user to retry an invalid response.
+while true; do
+    # Exit with an error if input closes before the start command is received.
+    if ! IFS= read -r command; then
+        echo "No start command received; exiting without sorting." >&2
+        exit 1
+    fi
+    # Accept commands supplied with Windows-style line endings.
+    command=${command%$'\r'}
+    # Begin sorting only after the user enters the requested command.
+    if [ "$command" = "start" ]; then
+        break
+    fi
+    # Remind the user which command starts the sorter.
+    echo "Type start and press Enter to begin, or press Ctrl+C to stop."
+done
+
 # Announce which directory is about to be sorted.
 echo "Sorting $TARGET_DIR"
 # Perform the initial scan of the selected directory.
@@ -206,10 +225,8 @@ if [ "$SORTED_COUNT" -eq 0 ]; then
 # Continue into watch mode when the initial scan moved files.
 fi
 
-# Print a friendly message and exit cleanly when Ctrl+C is pressed.
-trap 'echo; echo "Stopped."; exit 0' INT
-# Tell the user the watch interval and how to stop the script.
-echo "Watching for new files every ${INTERVAL}s. Press Ctrl+C to stop."
+# Tell the user when watching stops and how to stop it sooner.
+echo "Watching every ${INTERVAL}s until a scan moves no files. Press Ctrl+C to stop."
 # Keep scanning until a scan moves no files.
 while true; do
     # Wait for the configured interval before scanning again.
