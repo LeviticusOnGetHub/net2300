@@ -2,6 +2,7 @@
 # engine-min.sh - minimal migrate engine.
 # Every second: read 'pending' rows from the logs table, execute each command,
 # set the row to 'done' or 'error', and log the result to stdout (redirect to dbmigrate.log).
+# mysqldump and mariadb-dump commands that redirect to a file are also recorded in export_log.
 #
 # Usage:  nohup ./engine-min.sh >> dbmigrate.log 2>&1 &
 #         ./engine-min.sh --once     process pending rows one time and exit
@@ -60,10 +61,54 @@ update_status() {
         -e "UPDATE logs SET status = '$new_status' WHERE id = $log_id"
 }
 
+get_export_details() {
+    local message="$1"
+    local export_regex='^[[:space:]]*(mysqldump|mariadb-dump)[[:space:]].*[[:space:]]([[:alnum:]_]+)[[:space:]]*>[[:space:]]*([^[:space:]]+)[[:space:]]*$'
+
+    EXPORT_DATABASE_NAME=""
+    EXPORT_FILENAME=""
+
+    if [[ "$message" =~ $export_regex ]]; then
+        EXPORT_DATABASE_NAME="${BASH_REMATCH[2]}"
+        EXPORT_FILENAME="${BASH_REMATCH[3]}"
+
+        case "$EXPORT_FILENAME" in
+            \"*\") EXPORT_FILENAME="${EXPORT_FILENAME#\"}"; EXPORT_FILENAME="${EXPORT_FILENAME%\"}" ;;
+            \'*\') EXPORT_FILENAME="${EXPORT_FILENAME#\'}"; EXPORT_FILENAME="${EXPORT_FILENAME%\'}" ;;
+        esac
+    fi
+}
+
+record_export() {
+    local database_name="$1" filename="$2" status="$3" output="$4" file_size="$5"
+    local database_hex filename_hex output_hex file_size_sql
+
+    database_hex=$(printf '%s' "$database_name" | od -An -v -tx1 | tr -d ' \n')
+    filename_hex=$(printf '%s' "$filename" | od -An -v -tx1 | tr -d ' \n')
+    output_hex=$(printf '%s' "$output" | od -An -v -tx1 | tr -d ' \n')
+
+    if [[ "$file_size" =~ ^[0-9]+$ ]]; then
+        file_size_sql="$file_size"
+    else
+        file_size_sql="NULL"
+    fi
+
+    if ! "$MYSQL_BIN" --defaults-file="$MYSQL_CONFIG" -e \
+        "INSERT INTO export_log (database_name, filename, status, output, file_size)
+         VALUES (UNHEX('$database_hex'), UNHEX('$filename_hex'), '$status',
+                 NULLIF(UNHEX('$output_hex'), ''), $file_size_sql)"; then
+        log "ERROR: Could not save export record for $database_name ($filename)"
+        return 1
+    fi
+
+    log "Recorded export: database=$database_name file=$filename status=$status size=${file_size:-unknown}"
+}
+
 process_pending_logs() {
     # Keep each row's ID, command and status, its result, and logging variables local.
     # command_hex and output_hex hold SQL safe text, masked_command hides -p passwords.
     local id message status output rc command_hex output_hex masked_command
+    local export_database export_filename export_status export_size
 
     # Read from fd 3 so executed commands cannot consume the pending list
     while IFS=$'\t' read -r -u 3 id message status; do
@@ -79,8 +124,32 @@ process_pending_logs() {
 
         update_status "$id" processing
 
+        get_export_details "$message"
+        export_database="$EXPORT_DATABASE_NAME"
+        export_filename="$EXPORT_FILENAME"
+
         output=$(eval "$message" 2>&1 < /dev/null)
         rc=$?
+
+        if [[ -n "$export_database" ]]; then
+            export_status="error"
+            export_size=""
+
+            if [[ -f "$export_filename" ]]; then
+                export_size=$(wc -c < "$export_filename" | tr -d '[:space:]')
+            fi
+
+            if [[ "$rc" -eq 0 && -s "$export_filename" ]]; then
+                export_status="success"
+            elif [[ "$rc" -eq 0 ]]; then
+                output="${output:+$output; }Dump command succeeded but the output file is missing or empty: $export_filename"
+                rc=1
+            fi
+
+            if ! record_export "$export_database" "$export_filename" "$export_status" "$output" "$export_size"; then
+                output="${output:+$output; }Could not record this export in export_log"
+            fi
+        fi
 
         # Convert the masked command to hexadecimal bytes and remove od's spacing.
         # Encoding prevents quotes and newlines in the command from breaking SQL.

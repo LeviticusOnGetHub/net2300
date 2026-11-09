@@ -174,6 +174,22 @@ docker-compose down -v
 - Username: `root` or `logapp`
 - Password: `rootpassword` or `logapp123`
 
+### Database export logging
+
+Database exports are queued by the frontend and processed by `engine-min.sh`.
+Run the engine from this directory in a separate terminal so dump files are
+created here:
+
+```bash
+cd dbmigrate
+./engine-min.sh
+```
+
+The engine needs a MariaDB/MySQL client and a `mysqldump` or `mariadb-dump`
+command available in its environment. When a dump command finishes, the engine
+records its database, filename, status, output, and file size in `export_log`.
+Use `./engine-min.sh --once` to process pending commands once and exit.
+
 ### Option 2: Manual Setup
 
 ### Start Backend Server
@@ -429,4 +445,3 @@ docker compose up -d
 
 # Verify the tables were created in logdb
 docker exec -it logapp-mariadb mysql -uroot -prootpassword logdb -e "SHOW TABLES;"
-
