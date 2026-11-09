@@ -16,3 +16,4 @@ yarn-error.log*
 # OS metadata
 .DS_Store
 Thumbs.db
+dbmigrate/.mysql.cnf

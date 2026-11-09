@@ -26,7 +26,7 @@ function App() {
     try {
       const response = await fetch(`${API_URL}/logs`);
       const data = await response.json();
-      
+
       if (data.success) {
         setLogs(data.data);
       } else {
@@ -49,9 +49,9 @@ function App() {
         },
         body: JSON.stringify(logData),
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         fetchLogs(); // Refresh the list
         return { success: true };
@@ -69,9 +69,9 @@ function App() {
       const response = await fetch(`${API_URL}/logs/${id}`, {
         method: 'DELETE',
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         fetchLogs(); // Refresh the list
       } else {
@@ -92,9 +92,9 @@ function App() {
         },
         body: JSON.stringify({ status }),
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         fetchLogs(); // Refresh the list
       } else {
@@ -110,14 +110,14 @@ function App() {
     if (!window.confirm('Are you sure you want to clear all logs?')) {
       return;
     }
-    
+
     try {
       const response = await fetch(`${API_URL}/logs`, {
         method: 'DELETE',
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         fetchLogs(); // Refresh the list
       } else {
@@ -127,13 +127,18 @@ function App() {
       setError('Error connecting to server: ' + err.message);
     }
   };
-
+  const getTimestamp = () => {
+    const now = new Date();
+    const pad = (n) => String(n).padStart(2, '0');
+    return `${String(now.getFullYear()).slice(-2)}${pad(now.getMonth() + 1)}${pad(now.getDate())}${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+  };
   // Export database - insert mysqldump command into logs
   const exportDatabase = async (database) => {
+    const timestamp = getTimestamp();
     const commands = {
-      logdb: 'mysqldump --skip-ssl --skip-add-drop-table --complete-insert -h 127.0.0.1 -u root -prootpassword logdb   > backup.sql',
-      logdbqa: 'mysqldump --skip-ssl -h 127.0.0.1 -u root -prootpassword logdbqa > backup_qa.sql',
-      logdbprod: 'mysqldump --skip-ssl -h 127.0.0.1 -u root -prootpassword logdbprod > backup_prod.sql'
+      logdb: `mysqldump --skip-ssl --skip-add-drop-table --complete-insert -h 127.0.0.1 -u root -prootpassword logdb > backup_${timestamp}.sql`,
+      logdbqa: `mysqldump --skip-ssl -h 127.0.0.1 -u root -prootpassword logdbqa > backup_qa_${timestamp}.sql`,
+      logdbprod: `mysqldump --skip-ssl -h 127.0.0.1 -u root -prootpassword logdbprod > backup_prod_${timestamp}.sql`
     };
 
     const command = commands[database];
@@ -189,7 +194,7 @@ function App() {
     try {
       const response = await fetch(`${API_URL}/execution-logs`);
       const data = await response.json();
-      
+
       if (data.success) {
         setExecutionLogs(data.data);
       } else {
@@ -212,9 +217,9 @@ function App() {
         },
         body: JSON.stringify(logData),
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         fetchExecutionLogs(); // Refresh the list
         return { success: true };
@@ -232,9 +237,9 @@ function App() {
       const response = await fetch(`${API_URL}/execution-logs/${id}`, {
         method: 'DELETE',
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         fetchExecutionLogs(); // Refresh the list
       } else {
@@ -250,14 +255,14 @@ function App() {
     if (!window.confirm('Are you sure you want to clear all execution logs?')) {
       return;
     }
-    
+
     try {
       const response = await fetch(`${API_URL}/execution-logs`, {
         method: 'DELETE',
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         fetchExecutionLogs(); // Refresh the list
       } else {
@@ -277,7 +282,7 @@ function App() {
     try {
       const response = await fetch(`${API_URL}/export-logs`);
       const data = await response.json();
-      
+
       if (data.success) {
         setExportLogs(data.data);
       } else {
@@ -296,9 +301,9 @@ function App() {
       const response = await fetch(`${API_URL}/export-logs/${id}`, {
         method: 'DELETE',
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         fetchExportLogs(); // Refresh the list
       } else {
@@ -314,14 +319,14 @@ function App() {
     if (!window.confirm('Are you sure you want to clear all export logs?')) {
       return;
     }
-    
+
     try {
       const response = await fetch(`${API_URL}/export-logs`, {
         method: 'DELETE',
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         fetchExportLogs(); // Refresh the list
       } else {
@@ -343,26 +348,26 @@ function App() {
       <header className="App-header">
         <h1>📝 MariaDB migrate Manager</h1>
         <p>Net23000 class project</p>
-        <h2>Update read-pending.sh with your database connection details</h2>
+        <h2>Update engine.sh with your database connection details</h2>
       </header>
 
       <main className="App-main">
         <div className="container">
           {/* Tab Navigation */}
           <div className="tab-navigation">
-            <button 
+            <button
               className={`tab-button ${activeTab === 'commands' ? 'active' : ''}`}
               onClick={() => setActiveTab('commands')}
             >
               📋 Commands
             </button>
-            <button 
+            <button
               className={`tab-button ${activeTab === 'executions' ? 'active' : ''}`}
               onClick={() => setActiveTab('executions')}
             >
               ⚙️ Execution Logs
             </button>
-            <button 
+            <button
               className={`tab-button ${activeTab === 'exports' ? 'active' : ''}`}
               onClick={() => setActiveTab('exports')}
             >
@@ -376,7 +381,6 @@ function App() {
               {/* Log Form Section */}
               <section className="card">
                 <div className="logs-header">
-                  <h2>Create New Command Entry</h2>
                   <div className="controls">
                     {/* Import from existing backups (export_log with success) */}
                     <div className="dropdown" style={{ marginRight: '10px' }}>
@@ -400,7 +404,7 @@ function App() {
                       </select>
                     </div>
                     <div className="dropdown">
-                      <select 
+                      <select
                         onChange={(e) => {
                           if (e.target.value) {
                             exportDatabase(e.target.value);
@@ -417,7 +421,7 @@ function App() {
                     </div>
                   </div>
                 </div>
-                <LogForm onSubmit={createLog} />
+                {/* <LogForm onSubmit={createLog} /> */}
               </section>
 
               {/* Log List Section */}
@@ -448,10 +452,10 @@ function App() {
           {activeTab === 'executions' && (
             <>
               {/* Execution Log Form Section */}
-              <section className="card">
+{/*               <section className="card">
                 <h2>Create New Execution Log</h2>
                 <ExecutionLogForm onSubmit={createExecutionLog} />
-              </section>
+              </section> */}
 
               {/* Execution Log List Section */}
               <section className="card">
