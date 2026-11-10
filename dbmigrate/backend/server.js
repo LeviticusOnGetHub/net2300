@@ -60,6 +60,22 @@ async function initDatabase() {
                 FOREIGN KEY (log_id) REFERENCES logs(id) ON DELETE SET NULL
             )
         `);
+
+        // Create the table used to list completed database dumps for import.
+        await connection.query(`
+            CREATE TABLE IF NOT EXISTS export_log (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                database_name VARCHAR(100) NOT NULL,
+                filename VARCHAR(255) NOT NULL,
+                status ENUM('pending', 'success', 'error') DEFAULT 'pending',
+                output TEXT,
+                file_size BIGINT,
+                exported_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                INDEX idx_database_name (database_name),
+                INDEX idx_status (status),
+                INDEX idx_exported_at (exported_at)
+            )
+        `);
         
         connection.release();
         console.log('✓ Database and tables initialized');

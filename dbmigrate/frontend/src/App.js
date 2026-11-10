@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import './App.css';
 import LogForm from './components/LogForm';
 import LogList from './components/LogList';
@@ -20,7 +20,7 @@ function App() {
   const API_URL = `http://${window.location.hostname}:5000/api`;
 
   // Fetch logs
-  const fetchLogs = async () => {
+  const fetchLogs = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -37,7 +37,7 @@ function App() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [API_URL]);
 
   // Create log
   const createLog = async (logData) => {
@@ -188,7 +188,7 @@ function App() {
   // ========== Execution Log Functions ==========
 
   // Fetch execution logs
-  const fetchExecutionLogs = async () => {
+  const fetchExecutionLogs = useCallback(async () => {
     setExecutionLoading(true);
     setError(null);
     try {
@@ -205,7 +205,7 @@ function App() {
     } finally {
       setExecutionLoading(false);
     }
-  };
+  }, [API_URL]);
 
   // Create execution log
   const createExecutionLog = async (logData) => {
@@ -276,7 +276,7 @@ function App() {
   // ========== Export Log Functions ==========
 
   // Fetch export logs
-  const fetchExportLogs = async () => {
+  const fetchExportLogs = useCallback(async () => {
     setExportLoading(true);
     setError(null);
     try {
@@ -293,7 +293,7 @@ function App() {
     } finally {
       setExportLoading(false);
     }
-  };
+  }, [API_URL]);
 
   // Delete export log
   const deleteExportLog = async (id) => {
@@ -341,7 +341,10 @@ function App() {
     fetchLogs();
     fetchExecutionLogs();
     fetchExportLogs();
-  }, []);
+    const exportRefreshInterval = window.setInterval(fetchExportLogs, 5000);
+
+    return () => window.clearInterval(exportRefreshInterval);
+  }, [fetchExecutionLogs, fetchExportLogs, fetchLogs]);
 
   return (
     <div className="App">

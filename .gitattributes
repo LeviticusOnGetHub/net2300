@@ -1,0 +1,2 @@
+# Keep the Bash engine LF-terminated so it runs correctly on Linux hosts.
+dbmigrate/engine.sh text eol=lf

@@ -176,19 +176,21 @@ docker-compose down -v
 
 ### Database export logging
 
-Database exports are queued by the frontend and processed by `engine-min.sh`.
+Database exports are queued by the frontend and processed by `engine.sh`.
 Run the engine from this directory in a separate terminal so dump files are
 created here:
 
 ```bash
 cd dbmigrate
-./engine-min.sh
+./engine.sh
 ```
 
 The engine needs a MariaDB/MySQL client and a `mysqldump` or `mariadb-dump`
-command available in its environment. When a dump command finishes, the engine
-records its database, filename, status, output, and file size in `export_log`.
-Use `./engine-min.sh --once` to process pending commands once and exit.
+command available in its environment. Keep it running while using the frontend:
+the Export Database dropdown queues a dump command, and the engine executes it.
+After a successful nonempty dump, the engine records its database, filename,
+status, output, and file size in `export_log`. The Import From Backup dropdown
+refreshes every five seconds and lists successful exports that can be imported.
 
 ### Option 2: Manual Setup
 
