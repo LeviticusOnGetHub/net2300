@@ -26,6 +26,7 @@ DB_NAME="logdb"
 create_mysql_config() {
     cat > "$MYSQL_CONFIG" << EOF
 [client]
+skip-ssl
 host=$DB_HOST
 port=$DB_PORT
 user=$DB_USER
